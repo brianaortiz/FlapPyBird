@@ -5,7 +5,7 @@ import sys
 import pygame
 from pygame.locals import *
 
-
+SOUNDS_ON = False
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
@@ -83,17 +83,18 @@ def main():
     # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
 
-    # sounds
-    if 'win' in sys.platform:
-        soundExt = '.wav'
-    else:
-        soundExt = '.ogg'
+    if (SOUNDS_ON):
+        # sounds
+        if 'win' in sys.platform:
+            soundExt = '.wav'
+        else:
+            soundExt = '.ogg'
 
-    SOUNDS['die']    = pygame.mixer.Sound('assets/audio/die' + soundExt)
-    SOUNDS['hit']    = pygame.mixer.Sound('assets/audio/hit' + soundExt)
-    SOUNDS['point']  = pygame.mixer.Sound('assets/audio/point' + soundExt)
-    SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
-    SOUNDS['wing']   = pygame.mixer.Sound('assets/audio/wing' + soundExt)
+        SOUNDS['die']    = pygame.mixer.Sound('assets/audio/die' + soundExt)
+        SOUNDS['hit']    = pygame.mixer.Sound('assets/audio/hit' + soundExt)
+        SOUNDS['point']  = pygame.mixer.Sound('assets/audio/point' + soundExt)
+        SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
+        SOUNDS['wing']   = pygame.mixer.Sound('assets/audio/wing' + soundExt)
 
     while True:
         # select random background sprites
@@ -162,7 +163,8 @@ def showWelcomeAnimation():
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 # make first flap sound and return values for mainGame
-                SOUNDS['wing'].play()
+                if SOUNDS_ON:
+                  SOUNDS['wing'].play()
                 return {
                     'playery': playery + playerShmVals['val'],
                     'basex': basex,
@@ -234,7 +236,8 @@ def mainGame(movementInfo):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
                     playerFlapped = True
-                    SOUNDS['wing'].play()
+                    if SOUNDS_ON:
+                      SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
@@ -257,7 +260,8 @@ def mainGame(movementInfo):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                SOUNDS['point'].play()
+                if SOUNDS_ON:
+                  SOUNDS['point'].play()
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
@@ -336,8 +340,9 @@ def showGameOverScreen(crashInfo):
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
     # play hit and die sounds
-    SOUNDS['hit'].play()
-    if not crashInfo['groundCrash']:
+    if SOUNDS_ON:
+      SOUNDS['hit'].play()
+      if not crashInfo['groundCrash']:
         SOUNDS['die'].play()
 
     while True:
